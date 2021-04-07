@@ -66,7 +66,7 @@ for (i in 1:25) {
 }
 ```
 
-You can see that the images show fashion items such as clothing or others
+You can see that the images show fashion items such as clothing or others. I have also included the tags so that we can see that the items were actually correctly indentified instead of just showing numbers between 0 and 9 as tags which we would have no real way to check easily.
 
 ## B,Train a fully connected deep network to predict items
 
@@ -120,8 +120,8 @@ history_1
 plot(history_1)
 ```
 
-Looks like the first one does somewhat well with validation set. 
-Let's try changing some of the paramenters to get them closer together
+Looks like the first one does somewhat well with validation set. Even reaching 0.88 on the first try that is a very good sign.
+Let's try changing some of the parameters to get them closer together.
 
 ### Adding an additional layer
 
@@ -132,7 +132,7 @@ model_2 <- keras_model_sequential()
 model_2 %>%
   layer_dense(units = 250, activation = 'relu', input_shape = c(784)) %>%
   layer_dropout(rate = 0.3) %>%
-  layer_dense(units = 128, activation = 'relu', input_shape = c(784)) %>% #adding another layer
+  layer_dense(units = 128, activation = 'relu') %>% #adding another layer
   layer_dropout(rate = 0.3) %>%
   layer_dense(units = 10, activation = 'softmax')
 
@@ -160,8 +160,7 @@ history_2a
 plot(history_2a)
 ```
 
-Now we can see that data evens out relatively quickly
-The train and valudate are also very close together
+Now we can see that data evens out relatively quickly. This means that we reach the max accuracy after only a few iterations. The accuracy has also improved  to around 0.90 in the validation set. There are slight signs of overfitting, but nothing too mayor.
 
 #### Let's try running this with 250 in a batch instead
 
@@ -179,16 +178,18 @@ history_2b
 plot(history_2b)
 ```
 
-Looks like adding a larger batch did help increase the Accuracy
+While it did help increase the accuracy slightly to around 0.9, this model looks somewhat overfit to the training set. However, with that being said it still helped improve the model.
 
 ### Larger dropout rate
+
+I have increased the dropout rate from 0.3 to 0.5 to see if that makes a difference in this model.
 
 ```{r}
 model_3 <- keras_model_sequential()
 model_3 %>%
   layer_dense(units = 250, activation = 'relu', input_shape = c(784)) %>%
   layer_dropout(rate = 0.5) %>%
-  layer_dense(units = 128, activation = 'relu', input_shape = c(784)) %>%
+  layer_dense(units = 128, activation = 'relu') %>%
   layer_dropout(rate = 0.5) %>%
   layer_dense(units = 10, activation = 'softmax')
 
@@ -214,16 +215,18 @@ history_3
 plot(history_3)
 ```
 
-This seems much less overfit
+This seems much less overfit, however it lowered the accuracy back to around 0.87-0.88 which is where we started. So this increase in dropout rate hurt out model. It might be worth trying to exact oppposite.
 
 ### Lets try changing the activation function
+
+I changed all the activation functions to "softmax" since that is one of the other very popular activation functions for neural networks. Everything else has been kept the same in this model (back to the 0.3 dropout rate).
 
 ```{r}
 model_4 <- keras_model_sequential()
 model_4 %>%
   layer_dense(units = 250, activation = 'softmax', input_shape = c(784)) %>%
   layer_dropout(rate = 0.3) %>% 
-  layer_dense(units = 128, activation = 'softmax', input_shape = c(784)) %>%
+  layer_dense(units = 128, activation = 'softmax') %>%
   layer_dropout(rate = 0.3) %>%
   layer_dense(units = 10, activation = 'softmax')
 
@@ -249,17 +252,19 @@ history_4
 plot(history_4)
 ```
 
-Looks like this is actually worse than the other activation functions
+Looks like this is actually worse than the other activation functions.The accuracy dropped to 0.7 in the validation set which is much below all the other models.  This may be due to the shape of the data that fits better to a "relu" activation function than the "softmax" one.
 
 ### Lets add one more layer
+
+In model five I've created a more complex mode to see if it would overfit to the data. For this I added an additional layer with 250 nodes as well as lowered the dropout rate to 0.01.
 
 ```{r}
 model_5 <- keras_model_sequential()
 model_5 %>%
   layer_dense(units = 250, activation = 'relu', input_shape = c(784)) %>%
   layer_dropout(rate = 0.01) %>% 
-  layer_dense(units = 128, activation = 'relu', input_shape = c(784)) %>%
-  layer_dense(units = 250, activation = 'relu', input_shape = c(784)) %>%  
+  layer_dense(units = 128, activation = 'relu') %>%
+  layer_dense(units = 250, activation = 'relu') %>%  
   layer_dense(units = 10, activation = 'softmax')
 
 summary(model_5)
@@ -284,8 +289,8 @@ history_5
 plot(history_5)
 ```
 
-This one does great on training, but looking at the validation set, it seems overfit
-Loweting the dropout rate made the model worse
+This one does great on training, but looking at the validation set, it seems overfit. The accuracy is worse than the baseline at around 0.87-0.88.
+Lowering the dropout rate made the model worse as seen before as well. And adding another layer made it overfit. This shows that there is a point of complexity with neural networks like with any other model where they overfit to the data.
 
 ```{r}
 summary <- data.frame(
@@ -300,13 +305,15 @@ summary <- data.frame(
 summary
 ```
 
-Model 4 is definitely overfit. Model 2 with the larger batch size did the best.
+Comparing all the accuracies on the validation set it can be seen that Model 4 is definitely overfit to the training set. Further Model 2 performs the best, but is improved when we increse the bath size. It is interesting since it gives the best results even if it is a bit overfit.
+
+Now let's look at Model 2 with a larger batch size on the test set.
 
 ```{r}
 evaluate(model_2, x_test, y_test, batch_size = 250)
 ```
 
-It is somewhat lower in the test set but that is expected. Still very very close though. This is a very good sign with a small validation and test set compared to the training set. This means that the data is not too overfit and will most likely be good for generalization and scaling
+It is somewhat lower in the test set (0.01) but that is expected. Still very very close though. This is a very good sign with a small validation and test set compared to the training set. This means that the data is not too overfit and will most likely be good for generalization and scaling
 
 ## D, Convulated network
 
@@ -372,10 +379,12 @@ history_6
 plot(history_6)
 ```
 
-This model already shows great results, although it may be a bit overfit.
-The numbers look better on the accuracy but the plot still shows that the training and validation are pretty far apart.
+This model already shows great results (0.91), although it may be a bit overfit.
+The numbers look better on the accuracy but the plot still shows that the training and validation are somewhat far apart.
 
 #### Let's again try more layers
+
+I've added one more layer to see if I can ge the training and validaiton results even closer togehter. This may result in an overfit model.
 
 ```{r}
 cnn_model_2 <- keras_model_sequential()
@@ -414,9 +423,11 @@ history_7
 plot(history_7)
 ```
 
-While this validation error is lower, it shows less signs of overfitting. Looks like the improvement here is milimal
+While this validation error is lower (less than 0.9), it shows less signs of overfitting. The additional layer actually surprisingly didn't overfit but helped even it out. However, it didn't achieve as good results as other models.
 
 #### Lets try a different activation function for one of the layers
+
+We saw above that the "softmax" activation function didn't work out well. I wanted to see if that changes when using these convaluted models.
 
 ```{r}
 cnn_model_3 <- keras_model_sequential()
@@ -538,7 +549,7 @@ The best is actually model 10 even with the horrible curve
 evaluate(cnn_model_4, x_test, y_test)
 ```
 
-This is a significant improvement over the fully connected datasets
+This is a significant improvement over the fully connected models. This improvement can be seen both in the validation and the test set.
 
 
 
