@@ -73,7 +73,7 @@ hot_dog_model %>% compile(
 
 history <- hot_dog_model %>% fit_generator(
   train_generator,
-  steps_per_epoch = 500 / batch_size,
+  steps_per_epoch = 498 / batch_size,
   epochs = 30
 )
 
@@ -127,9 +127,17 @@ hot_dog_model_2 %>% compile(
   metrics = c("accuracy")
 )
 
+train_generator_2 <- flow_images_from_directory(
+  file.path(here(), "data/hot-dog-not-hot-dog/train/"), # Target directory  
+  train_datagen_2,              # Data generator
+  target_size = image_size,  # Resizes all images to 150 × 150
+  batch_size = batch_size,
+  class_mode = "binary"       # binary_crossentropy loss for binary labels
+)
+
 history_2 <- hot_dog_model_2 %>% fit_generator(
   train_generator_2,
-  steps_per_epoch = 500 / batch_size,
+  steps_per_epoch = 498 / batch_size,
   epochs = 30
 )
 
@@ -167,7 +175,7 @@ image_size <- c(128, 128)
 batch_size <- 100  # for speed up
 
 train_generator <- flow_images_from_directory(
-  file.path(here(), "data/dogs-vs-cats/train/"), # Target directory  
+  file.path(here(), "data/hot-dog-not-hot-dog/train/"), # Target directory  
   train_datagen,              # Data generator
   target_size = image_size,  # Resizes all images 
   batch_size = batch_size,
@@ -175,7 +183,7 @@ train_generator <- flow_images_from_directory(
 )
 
 test_generator <- flow_images_from_directory(
-  file.path(here(), "data/dogs-vs-cats/test/"), # Target directory  
+  file.path(here(), "data/hot-dog-not-hot-dog/test/"), # Target directory  
   test_datagen,
   target_size = image_size,
   batch_size = batch_size,
@@ -201,10 +209,8 @@ pre_train_model %>% compile(
 
 pre_train_model %>% fit_generator(
   train_generator,
-  steps_per_epoch = 2000 / batch_size,
+  steps_per_epoch = 498 / batch_size,
   epochs = 1,  # takes long time to train more
-  validation_data = validation_generator,
-  validation_steps = 50
 )
 
 hot_dog_model_baseline_eval <- as.data.frame(evaluate(pre_train_model, test_generator))
